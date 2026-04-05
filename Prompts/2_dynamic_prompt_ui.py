@@ -52,6 +52,13 @@ template = PromptTemplate(
     input_variables=['paper_input', 'style_input', 'length_input']
 )
 
+# fills the placehoders in the template with the user input
+prompt = template.invoke({
+    'paper_input': paper_input,
+    'style_input': style_input,
+    'length_input': length_input
+})
+
 if st.button('Submit'):
-    result = llm.invoke(user_input)
-    st.write(result)
+    result = llm.invoke(prompt)
+    print(result)
