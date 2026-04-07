@@ -2,13 +2,20 @@ from langchain_huggingface import HuggingFaceEndpoint
 from dotenv import load_dotenv
 import streamlit as st
 from langchain_core.prompts import PromptTemplate
+from transformers import pipeline
 
 load_dotenv()
 
-llm = HuggingFaceEndpoint(
-    repo_id="meta-llama/Meta-Llama-3-8B",
-    task="text-generation",
-    max_new_tokens=100
+# llm = HuggingFaceEndpoint(
+#     repo_id="google/gemma-7b",
+#     task="text-generation",
+#     max_new_tokens=100
+# )
+
+llm = pipeline(
+    "text-generation",
+    model="TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+    # max_new_tokens=150
 )
 
 st.header('Research Tool')
@@ -49,16 +56,26 @@ template = PromptTemplate(
         length.
     """,
     
-    input_variables=['paper_input', 'style_input', 'length_input']
+    input_variables=['paper_input', 'style_input', 'length_input'],
+    validate_template=True
 )
 
 # fills the placehoders in the template with the user input
-prompt = template.invoke({
-    'paper_input': paper_input,
-    'style_input': style_input,
-    'length_input': length_input
-})
+# prompt = template.invoke({
+#     'paper_input': paper_input,
+#     'style_input': style_input,
+#     'length_input': length_input
+# })
+
+prompt = template.format(
+    paper_input=paper_input,
+    style_input=style_input,
+    length_input=length_input
+)
 
 if st.button('Submit'):
-    result = llm.invoke(prompt)
+    result = llm(prompt)
+    # print(result)
+    # st.write(result)
+    st.write(result[0]['generated_text'].replace(prompt, ""))
     print(result)
